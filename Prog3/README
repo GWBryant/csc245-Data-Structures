@@ -1,0 +1,73 @@
+Huffman encoding for MERCER TENNIS
+1) The zip file for this text file would look like this:
+10
+10 1010
+32 1011
+67 1100
+69 00
+73 1101
+77 1110
+78 011
+82 100
+83 1111
+84 010
+111000100110000100101101000011011110111111010
+In this file the first number is the number "n" of unique characters in the file, Then you are given n lines containing an ascii value of a character, and its encoding for the compression. Finally you are given an ecoded version of the text file.
+An encoding table would look like this:
+    character     weight    Parent    Child Type
+0      C	    1	      11           0
+1      E	    3         16           1
+2      I            1         11           1
+3      M            1         12           0
+4      N            2         13           1
+5      R            2         14           0
+6      S            1         12           1
+7      T            1         13           0
+8      sp           1         10           1
+9      nl           1         10           0
+10     T1           2         15           0
+11     T2  	    2         15           1
+12     T3   	    2         14           1
+13     T4  	    3         16           0
+14     T5	    4         17           1
+15     T6   	    4         17           0
+16     T7 	    6         18           1
+17     T8    	    8         18           0
+18     T9	    14        0            
+Where the far left column is array indices, and the child type references the tree created using the huffman greedy algorithm.
+
+2)Huffman Greedy Algorithm for MERCER TENNIS
+-First create a forest of all of the freuqencies in the input string
+-Then merge the smallest two, if there is a tie you can use any. For example there are several letters in this input with a frequency of 1, but we can just start with nl and sp. Get greedy!
+- When merging these nodes you are forming a total weighted node called T1-Ti where i is the total number of times you merge nodes.
+-You then continue to merge the smalles nodes, including the total node, until you are left with a total node as the parent of the tree.
+-Then you give binary weights to each of the links in the tree (left = 0, right = 1).
+-You then use this tree to create a huffman encoding table which can be used to encode your data.
+For MERCER TENNIS, you can make a huffman tree using the greedy algorithm like so:
+-First merge nl and sp to form T1 wit wieght 2
+-Second merge C and I to form T2 with weight 2
+-Third merge M and S to form T3 with weight 2
+-Fourth merge T and N to form T4 with weight 3
+-Fifth merge R and T3 to create T5 with weight 4
+-Sixth merge T1 and T2 to form T6 with weight 4
+-Seventh merge T4 with E to form T7 with weight 6
+-eigth merge T6 and T5 to form T8 with weight 8
+-finally merge T8 and T7 to form T9 with weight 14
+
+3)Huffman class setup:
+PUBLIC:
+-HuffmanTree(): constructor that sets the default number of chars to 0 and sets the bool "built" to false
+-insert(): takes in a character and a weight and creates a new Node with those values and pushes it into a vector of huffman nodes
+-inTree(): searches through the tree to see if a given character is in the tree. used for error handling when searching tree for chars or weights.
+-GetFrequency(): gets weight of a specific node. Good for building tree. Has both public and private version.
+-build(): builds a huffman tree from vector of huffmanNodes
+-getCode(): returns a compression code for a char by traversing a huffman tree. Vitally important for encoding the input string.
+-printTable(): displays the huffman encoding table that can be generated from the huffman tree
+-numNodes(): returns the number of nodes in the tree.
+PRIVATE:
+-given a vector of Huffman Nodes, used for insert()
+-have an integer value for the number of characters in the huffman tree.
+-have a boolean for built to see if a huffman tree has been built yet from the input data
+-lookUp(): returns the index in the vector of huffman nodes of a given character
+-GetFrequency(): private version of getFrequency that returns the weight of a given index of the vector.
+-getCode(): returns code of a specific index of the vector.

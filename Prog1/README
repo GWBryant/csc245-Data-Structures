@@ -1,0 +1,29 @@
+1.
+The DList class is a class the creates a doubly linked list of an unspecified data type. the DLIst class is able to create lists of any data type because it uses templates which allow datatypes to be passed as parameters.
+
+
+2.DList functions:
+	isEmpty(): Checks to see if list is empty by checking if length private var is equal to zero.
+	inList(): passed in a value and checks if an item with that value is in the list by cycling through the list with a while loop in a linear search.
+	makeEmpty(): Makes the list empty by deallocating all of the pointers and setting them to null. loops through list using a while loop and deletes pointers using deleteLocation function.
+	insertHead(): takes input and inserts it at the head of the list, setting the previous head to the next node.
+	appendTail(): inserts a node at the end of the list using the last() function to find the location of the last node in the list.
+	print(): uses a loop to print all of the info stored in the list.
+	lengthIs(): returns length private variable.
+	deleteItem(): If an item is in the list it calls the deleteLocation function to delete that item.
+	last(): function that uses a loop to return the address of the last node in the list. 
+	location(): returns pointer to the location of an object using a loop to find it.
+	deleteLocation(): location passed in and that location is deleted. handles different cases for if the location is the head, tail, or the only object in the list.
+
+3.The move to front algorithm serves to make it so more commonly searched items are easier to find because they are closer to the front of the list. It works by finding the item you are searching for, if it is in the list, and deleting the current pointer for that item and adding a new pointer with that item as its info to the front of the list.
+
+4.Client program algorithm
+	main(): keeps user in a loop that calls method to display menu and take input to, then perform operations on list based on input by calling other functions until the user puts in input to quit the program.
+	PrintMenu(): Method to print menu and take in user input for options in menu.
+	HeadInsert(): Inserts an item into the head of the list by calling insertHead() function, checks for duplicates since they are not allowed.
+	TailInsert(): Inserts an item into the tail of the list by calling appendTail() function, checks for duplicates since they are not allowed.
+	AccessItem(): Finds item in the list and moves it to the front with findandmove() function. if list is empty it does nothing.
+	Delete(): if the list isn't empty then this function deletes the item passed into it.
+	printList(): If the list isn't empty then this method prints the list.
+	printLength(): prints the length of the list, if the list is empty it says so.
+	FindandMove(): deletes the item from the list, inserts the item back at the head. if the item is not on the list then the function says so.

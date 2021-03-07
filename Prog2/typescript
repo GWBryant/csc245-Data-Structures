@@ -1,0 +1,391 @@
+Script started on Tue 06 Oct 2020 10:48:05 PM EDT
+]0;bryant_gw@cobra:~/csc245/Prog2[?1034h[bryant_gw@cobra Prog2]$ [K[bryant_gw@cobra Prog2]$ [K[bryant_gw@cobra Prog2]$ [K[bryant_gw@cobra Prog2]$ cat testBet.cpp
+#include <iostream>
+#include "bet.h"
+#include <cstring>
+
+using namespace std;
+
+void PrintMenu(char &expressionType, string &expression);
+void buildPostfix(string expression,BET &myTree);
+void buildPrefix(string expression, BET &myTree);
+void buildInfix(string expression, BET &myTree);
+void printTree(BET &myTree);
+string infixToPostfix(string infixExpression);
+bool isOp(char c);
+bool opIsGE(char c, char d);
+
+int main()
+{
+    //instantiate variables
+    BET myTree;
+    char expressionType;
+    string expression;
+    char exitChoice;
+    //loop to keep in loop until user exits program
+    do
+	{
+        //empties tree before making a new one
+        myTree.makeEmpty();
+		PrintMenu(expressionType, expression); //prints menu and takes input
+        //performs operation depending on input
+		switch (expressionType)
+		{
+			case '1' :   buildPrefix(expression,myTree); printTree(myTree); break;
+			case '2' :   buildInfix(expression,myTree); printTree(myTree); break;
+			case '3' :   buildPostfix(expression,myTree); printTree(myTree); break;
+			default  :   cout << "\tError.  Invalid input." << endl;	
+		}
+        //check if user wants to print a tree, if not exit the loop and end program
+        cout << "Build another tree? (Y/N) ";
+        cin >> exitChoice;
+	}while(toupper(exitChoice) != 'N');
+    cout << "Program now deconstructing tree and exiting ..." << endl;
+    return 0;
+}
+
+//method to print menu and take input
+void PrintMenu(char &expressionType, string &expression)
+{
+    //print out menu and take input
+    cout << "--------------------- Building Binary Expression Trees ---------------------" << endl;
+    cout << "        (1) prefix                (2) Infix                (3) Postfix      " << endl;
+    cout << "Your expression type ==> ";
+    cin >> expressionType;
+    cout << "Your expression ==> ";
+    cin.ignore();   //getline didn't work without this, ignores items already in input buffer
+    getline(cin,expression);
+}
+
+//builds tree for postfix input, ignores spaces
+void buildPostfix(string expression,BET &myTree)
+{
+    for(int i = 0; i < expression.length(); i++)
+    {
+        if(expression[i] == ' ')
+            i++;
+        if(!isOp(expression[i]) && expression[i] != ' ')
+        {
+            myTree.insertOperand(expression[i]);
+        }
+        else if(isOp(expression[i]))
+        {
+            myTree.insertPostfixOperator(expression[i]);
+        }
+    }
+}
+
+//builds tree from prefix input starting from back to front of string
+//ignores spaces
+void buildPrefix(string expression, BET &myTree)
+{
+    for(int i = expression.length(); i >= 0; i--)
+    {
+        if(expression[i] == ' ')
+            i--;
+        if(!isOp(expression[i]) && expression[i] != ' ')
+            myTree.insertOperand(expression[i]);
+        else if(isOp(expression[i]))
+            myTree.insertPrefixOperator(expression[i]);
+    }
+}
+
+//builds tree from infix input by converting infix to postfix and building a postfix tree
+void buildInfix(string expression, BET &myTree)
+{
+    expression = infixToPostfix(expression);
+    buildPostfix(expression,myTree);
+}
+
+//converts infix to postfix
+string infixToPostfix(string f)
+{
+    Stack<char> s;
+    string postfixExpression;
+    //add parenthesis around every equation
+    f.insert(0,"(");
+    f += ')';
+    for(int i = 0; i < f.length(); i++)
+    {
+        if(f[i] == ' ')
+            i++;
+        if(!isOp(f[i]) && f[i] != '(' && f[i] != ')')
+            postfixExpression += f[i];
+        else if(f[i] == '(')
+            s.push(f[i]);
+        else if(f[i] == ')')
+        {
+            while(s.top() != '(')
+                postfixExpression += s.topAndPop();
+            s.pop();
+        }
+        else if(isOp(f[i]) && (s.isEmpty() || !isOp(s.top())))
+            s.push(f[i]);
+        else if(isOp(f[i]) && isOp(s.top()))
+        {
+            if(opIsGE(f[i],s.top()))
+            {
+                while(opIsGE(f[i],s.top()))
+                {
+                    postfixExpression += s.topAndPop();
+                }
+                s.push(f[i]);
+            }
+        }
+    }
+    //print all remaining operators in stack
+    while(!s.isEmpty())
+    {
+       postfixExpression += s.topAndPop();
+    }
+    return postfixExpression;
+}
+
+//print tree in all formats
+void printTree(BET &myTree)
+{
+    cout << "Prefix expression produced from tree:" << endl;
+    myTree.preorder();
+    cout << "Infix expression produced from tree:" << endl;
+    myTree.inorder();
+    cout << "Postfix expression produced from tree:" << endl;
+    myTree.postorder();
+}
+
+//check if a character is an operator
+bool isOp(char c)
+{
+    if(c == '+' || c == '-' || c== '*' || c == '/')
+        return true;
+    else
+        return false;
+}
+
+//check if the current operator is of equal or greater precedence than the one
+//on the top of the stack
+bool opIsGE(char c, char d)
+{
+    if(isOp(d))
+    {
+        if(c == '*' || c == '/' && d == '*' || d == '/')
+            return true;
+        else if(c == '+' || c =='-')
+            return true;
+        else
+            return false;
+    }
+    else
+        return false;
+}]0;bryant_gw@cobra:~/csc245/Prog2[bryant_gw@cobra Prog2]$ cat bet.cpp
+#include "bet.h"
+#include <iostream>
+
+using namespace std;
+
+//public functions
+//BET constructor
+BET::BET()
+{
+    root = NULL;
+}
+
+//BET deconstructor
+BET::~BET()
+{
+    makeEmpty();
+    root = NULL;
+}
+
+//checks if BET is empty by looking at the root
+bool BET::isEmpty () const
+{
+    if(root == NULL)
+        return true;
+    else
+        return false;
+}  
+
+//public call to private make empty
+void BET::makeEmpty()
+{
+    makeEmpty(root);
+}
+
+//inserts an operator with prefix input
+void BET::insertPrefixOperator (char token)
+{
+    BETPtr preOp = new BinaryNode;
+    preOp -> info.whichType = OPERATOR;
+    preOp -> info.theContent.opsymbol = token;
+    preOp -> right = s.topAndPop();
+    preOp -> left = s.topAndPop();
+    s.push(preOp);
+    root = preOp;
+}
+
+//inserts operator with postfix input
+void BET::insertPostfixOperator (char token) 
+{
+    BETPtr postOp = new BinaryNode;
+    postOp -> info.whichType = OPERATOR;
+    postOp -> info.theContent.opsymbol = token;
+    postOp -> left = s.topAndPop();
+    postOp -> right = s.topAndPop();
+    s.push(postOp);
+    root = postOp;
+}
+
+//inserts operand into stack
+void BET::insertOperand (char token)
+{
+    BETPtr newOp = new BinaryNode;
+    newOp -> info.whichType = OPERAND;
+    newOp -> info.theContent.variable = token;
+    newOp -> left = NULL;
+    newOp -> right = NULL;
+    s.push(newOp);
+} 
+
+//public call to preorder
+void BET::preorder() const
+{
+    if(!isEmpty())
+    {
+        preorder(root);
+        cout << endl;
+    }
+    else
+    {
+        cout << "Tree is empty." << endl;
+    }
+    
+} 
+
+//public call to inorder
+void BET::inorder() const
+{
+    if(!isEmpty())
+    {
+        inorder(root);
+        cout << endl;
+    }
+    else
+    {
+        cout << "Tree is empty." << endl;
+    }
+}
+
+//public call to postorder
+void BET::postorder() const
+{
+if(!isEmpty())
+    {
+        postorder(root);
+        cout << endl;
+    }
+    else
+    {
+        cout << "Tree is empty." << endl;
+    }
+}
+
+//private functions
+//private makeEmpty
+void BET::makeEmpty( BETPtr& t ) const
+{
+    //if root isnt null go left and right recursively and delete nodes
+    if(t != NULL)
+    {
+        makeEmpty(t -> right);
+        makeEmpty(t -> left);
+
+        delete t;
+        t = NULL;
+    }
+}
+
+//prints preorder by printing node and then recursively going right and left
+void BET::preorder( BETPtr t ) const
+{
+    if(t != NULL)
+    {
+            if(t->info.whichType == OPERAND)
+                cout << t->info.theContent.variable << " ";
+            else
+                cout << t->info.theContent.opsymbol << " ";
+            preorder( t->right );
+            preorder( t->left );
+    }
+}
+
+//prints inorder by recursively going right, printing, going recursively left, and printing
+void BET::inorder( BETPtr t ) const
+{
+    if(t != NULL)
+    {
+        if(t ->left != NULL)
+            cout << "( ";
+        inorder(t->right);
+        if(t->info.whichType == OPERAND)
+            cout << t->info.theContent.variable << " ";
+        else
+            cout << t->info.theContent.opsymbol << " ";
+        inorder(t->left);
+        if(t->right != NULL)
+            cout << ") ";
+    }
+}
+
+//prints preorder by recursively going right and left and then printing
+ void BET::postorder( BETPtr t ) const
+ {
+     if(t != NULL)
+     {
+        postorder(t->right);
+        postorder(t->left);
+        if(t->info.whichType == OPERAND)
+            cout << t->info.theContent.variable << " ";
+        else
+            cout << t->info.theContent.opsymbol << " ";
+     }
+ }]0;bryant_gw@cobra:~/csc245/Prog2[bryant_gw@cobra Prog2]$ c++ bet.[K[K[K[K-c bet.cpp
+]0;bryant_gw@cobra:~/csc245/Prog2[bryant_gw@cobra Prog2]$ c++ testBet.cpp bet.o
+]0;bryant_gw@cobra:~/csc245/Prog2[bryant_gw@cobra Prog2]$ ./a.out
+--------------------- Building Binary Expression Trees ---------------------
+        (1) prefix                (2) Infix                (3) Postfix      
+Your expression type ==> 1
+Your expression ==> * + a - / b c d * e + f g
+Prefix expression produced from tree:
+* + a - / b c d * e + f g 
+Infix expression produced from tree:
+( ( a + ( ( b / c ) - d ) ) * ( e * ( f + g ) ) ) 
+Postfix expression produced from tree:
+a b c / d - + e f g + * * 
+Build another tree? (Y/N) y
+--------------------- Building Binary Expression Trees ---------------------
+        (1) prefix                (2) Infix                (3) Postfix      
+Your expression type ==> 2
+Your expression ==> ((((a-b) + c) * ((D+e) / f)) - g)
+Prefix expression produced from tree:
+- * + - a b c / + D e f g 
+Infix expression produced from tree:
+( ( ( ( a - b ) + c ) * ( ( D + e ) / f ) ) - g ) 
+Postfix expression produced from tree:
+a b - c + D e + f / * g - 
+Build another tree? (Y/N) y
+--------------------- Building Binary Expression Trees ---------------------
+        (1) prefix                (2) Infix                (3) Postfix      
+Your expression type ==> 3
+Your expression ==> ab+c/d*
+Prefix expression produced from tree:
+* / + a b c d 
+Infix expression produced from tree:
+( ( ( a + b ) / c ) * d ) 
+Postfix expression produced from tree:
+a b + c / d * 
+Build another tree? (Y/N) n
+Program now deconstructing tree and exiting ...
+]0;bryant_gw@cobra:~/csc245/Prog2[bryant_gw@cobra Prog2]$ exit
+exit
+
+Script done on Tue 06 Oct 2020 10:52:06 PM EDT

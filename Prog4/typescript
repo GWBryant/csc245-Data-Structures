@@ -1,0 +1,26 @@
+Script started on Fri 04 Dec 2020 08:55:25 PM EST
+]0;bryant_gw@cobra:~/csc245/Prog4[?1034h[bryant_gw@cobra Prog4]$ c++ dijkstra.cpp 
+]0;bryant_gw@cobra:~/csc245/Prog4[bryant_gw@cobra Prog4]$ a.out ginfile2.dat [K[K
+file ginfile2.da does not exist.
+]0;bryant_gw@cobra:~/csc245/Prog4[bryant_gw@cobra Prog4]$ a.out ginfile2.dat
+[3;J[H[2J				^^^^^^^^^^^^^ Dijkstra's Algorithm ^^^^^^^^^^^^^
+				A weighted Graph has been built for these 7 cities: 
+                            V1                            V2                            V3
+                            V4                            V5                            V6
+                            V7
+		Enter starting vertex: V8
+		starting location does not exist ...
+		Enter new starting vertex: V5
+		----------------------------------------------------------------------------
+	                        Vertex       Distance       Previous
+	                            V5              0            N/A
+	                            V7              6             V5
+	                            V6              7             V7
+	                            V1    NOT ON PATH            N/A
+	                            V2    NOT ON PATH            N/A
+	                            V3    NOT ON PATH            N/A
+	                            V4    NOT ON PATH            N/A
+]0;bryant_gw@cobra:~/csc245/Prog4[bryant_gw@cobra Prog4]$ exit
+exit
+
+Script done on Fri 04 Dec 2020 08:55:54 PM EST

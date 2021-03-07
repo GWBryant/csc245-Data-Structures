@@ -1,0 +1,686 @@
+Script started on Thu 17 Sep 2020 08:44:24 PM EDT
+]0;bryant_gw@cobra:~/csc245/Prog1[?1034h[bryant_gw@cobra Prog1]$ cat MoveFront.cpp
+#include <iostream>
+#include "dlist.h"
+
+using namespace std;
+typedef int ItemType;
+
+void PrintMenu(char &sel);
+void HeadInsert(DList<ItemType> &myList);
+void TailInsert(DList<ItemType> &myList);
+void AccessItem(DList<ItemType> &myList);
+void Delete(DList<ItemType> &myList);
+void PrintList(DList<ItemType> &myList);
+void PrintLength(DList<ItemType> &myList);
+void FindandMove(DList<ItemType> &myList, int item);
+
+int main()
+{
+	DList<ItemType> list;
+	char sel;
+	
+	//keep user in menu until they quit the progam
+	do
+	{
+		PrintMenu(sel);
+		switch (toupper(sel))
+		{
+			case 'H' :   HeadInsert(list);  break;
+			case 'T' :   TailInsert(list);  break;
+			case 'A' :   AccessItem(list);  break;
+			case 'D' :   Delete(list);  break;
+			case 'P' :   PrintList(list); break;
+			case 'L' :   PrintLength(list); break;
+			case 'Q' :   cout << "\tExiting Program...\n"; break;
+			default  :   cout << "\tError.  Try Again." << endl;	
+		}
+	}while(toupper(sel) != 'Q');
+}
+
+//print menu and take user input
+void PrintMenu(char &sel)
+{
+	cout << "-------------------------------" << endl; 
+	cout << "		menu		" << endl;
+	cout << "-------------------------------" << endl;
+	cout << "H: Insert item at head of list" << endl;
+	cout << "T: Insert item at tail of list" << endl;
+	cout << "A: Access item from list" << endl;
+	cout << "D: Delete item from list" << endl;
+	cout << "P: Print list" << endl;
+	cout << "L: Print length of list" << endl;
+	cout << "Q: Quit program" << endl;
+	cout << "-------------------------------" << endl;
+	cout << "Enter choice: ";
+	cin >> sel; 
+}	
+
+//insert item at the head of the list
+void HeadInsert(DList<ItemType> &myList)
+{
+	int item;
+	cout << "\v\tItem to be inserted onto head of list: ";
+	cin >> item;
+	if(!myList.inList(item))
+		myList.insertHead(item);
+	else
+		cout << "\tItem already in list. No duplicates allowed." << endl;
+}
+
+//insert item at the tail of the list
+void TailInsert(DList<ItemType> &myList)
+{
+	int item;
+	cout << "\v\tItem to be inserted onto head of list: ";
+	cin >> item;
+	if(!myList.inList(item))
+		myList.appendTail(item);
+	else
+		cout << "\tItem already in list, No duplicates allowed." << endl;
+}
+
+//Access item from the list
+void AccessItem(DList<ItemType> &myList)
+{
+	if(myList.lengthIs() > 0)
+	{
+		int item;
+		cout << "\v\tItem to be accessed: ";
+		cin >> item;
+		FindandMove(myList,item);
+	}
+	else
+		cout << "\v\tList is empty" << endl;
+}
+
+//delete item from list
+void Delete(DList<ItemType> &myList)
+{
+	if(myList.lengthIs() > 0)
+	{
+		int item;
+		cout << "\v\tItem to be deleted: ";
+		cin >> item;
+		if(myList.inList(item))
+		{
+			myList.deleteItem(item);
+			cout << "\tItem successfully deleted from list." << endl;
+		}
+		else
+			cout << "\tItem could not be found in list" << endl;
+	}
+	else
+		cout << "\v\tList is empty" << endl; 
+}
+
+//print list
+void PrintList(DList<ItemType> &myList)
+{
+	if(myList.lengthIs() > 0)
+	{
+		myList.print();
+	}
+	else
+		cout << "\v\tList is empty" << endl;
+}
+
+//print the length of the list
+void PrintLength(DList<ItemType> &myList)
+{
+	if(myList.lengthIs() > 0)
+		cout << "\tLength of list: " << myList.lengthIs() << endl;
+	else
+		cout << "\tList is empty" << endl;
+}
+
+//find item and move it to the front of the list
+void FindandMove(DList<ItemType> &myList,int item)
+{
+	if(myList.inList(item))
+	{
+		myList.deleteItem(item);
+		myList.insertHead(item);
+		cout << "\tItem was found and moved to front of list" << endl;
+	}
+	else
+		cout << "\tItem could not be found in list" << endl;
+}
+]0;bryant_gw@cobra:~/csc245/Prog1[bryant_gw@cobra Prog1]$ cat dlist.h
+
+using namespace std;
+
+template <class ItemType>
+struct NodeType;
+
+template <class ItemType>
+class DList 
+{
+public :
+    DList ();		// Constructor
+    ~DList   ();  	// Destructor	
+
+    // Public Operations
+    void makeEmpty (); 
+    void deleteItem (ItemType item);
+    bool inList (ItemType item) const;	
+    bool isEmpty () const;  
+    void print() const; 
+    void insertHead (ItemType item); 
+    void appendTail (ItemType item); 
+    int lengthIs() const;
+
+private :
+    // Private Attributes of a DList Object 
+    NodeType<ItemType>* head;
+    int length;
+
+    // Functions Called Solely By Public Functions, Not The Client 
+    NodeType<ItemType>* location(ItemType item) const;
+    NodeType<ItemType>* last() const; 
+    void deleteLocation (NodeType<ItemType>* delPtr);
+};
+
+#include "dlist.cpp"
+]0;bryant_gw@cobra:~/csc245/Prog1[bryant_gw@cobra Prog1]$ cat dlist.cpp
+#include <cstddef> 
+#include <iostream>
+
+using namespace std;
+
+template<class ItemType>
+struct NodeType
+{
+	ItemType info;
+	NodeType<ItemType>*	next;
+	NodeType<ItemType>*	back;
+};
+
+template <class ItemType>		
+DList<ItemType>::DList()		// Class constructor
+{
+    length = 0;
+    head = NULL;
+}
+
+template <class ItemType>
+DList<ItemType>::~DList   ()		
+{
+	// Post: List is empty; All items have been deallocated.
+	makeEmpty();
+}
+
+template <class ItemType>
+void DList<ItemType>::makeEmpty()
+{
+    	// Post: List is empty; all items have been deallocated.
+    	while(head != NULL)
+	{
+		deleteLocation(last());
+	}
+}
+
+template <class ItemType>
+void DList<ItemType>::deleteItem (ItemType item)	
+{
+	//  Pre :  item to be deleted is passed in via parameter 
+        // Post :  item is deleted if it exists in list 
+	if(inList(item))
+	{
+		deleteLocation(location(item));
+	}
+	else
+		cout << "Item is not in the list." << endl;
+	
+
+}
+
+template <class ItemType>
+bool DList<ItemType>::inList (ItemType item) const
+{
+	//  Pre :  item to be located is passed in via parameter 
+        // Post :  function returns bool value if item is found
+	NodeType<ItemType>* newNode = new NodeType<ItemType>;
+	newNode = head;
+	if(!isEmpty())
+	{
+		while(newNode != NULL)
+		{
+			if(item == newNode -> info)
+				return true;
+			else
+				newNode = newNode -> next;
+		}
+		return false;
+	}
+ 	else
+		return false;
+}
+
+template <class ItemType>
+bool DList<ItemType>::isEmpty() const		
+{
+	// Post : function returns true if list is empty, false otherwise
+	if(length == 0)
+		return true;
+	else
+		return false;
+	
+}
+
+template <class ItemType>
+void DList<ItemType>::print() const	
+{
+	// Pre  : List is not empty 
+	// Post : Items in List have been printed to screen
+	if(!isEmpty())
+	{
+		NodeType<ItemType>* newNode = new NodeType<ItemType>;
+		newNode = head;
+		while(newNode != NULL)
+		{
+			cout << newNode -> info << endl;
+			newNode = newNode -> next;
+		}
+	}
+	else
+		cout << "Your list is empty" << endl;
+
+}
+	
+template <class ItemType>
+void DList<ItemType>::insertHead(ItemType item)	
+{
+	//  Pre : item to be inserted is passed in via parameter
+        // Post : item is inserted at head of list;  Former first node is 
+        //        linked back to this new one via double link;
+        //        Length incremented;  Special case handled if list is empty 
+	NodeType<ItemType>* newNode = new NodeType<ItemType>;
+	newNode -> info = item;
+	newNode -> back = NULL;
+
+	if(head != NULL)
+	{
+		head -> back = newNode;
+		newNode -> next = head;
+	}	
+	else
+		newNode -> next = NULL;
+
+	head = newNode;
+	length++;
+}
+
+template <class ItemType>
+void DList<ItemType>::appendTail(ItemType item)
+{
+	//  Pre :  item to be inserted is passed in via parameter
+        // Post :  item is added to tail of list; Former last node
+        //         is linked to this new one via double link 
+	NodeType<ItemType>* newNode = new NodeType<ItemType>;
+	newNode -> info = item;
+	newNode -> next = NULL;
+
+	if(head != NULL)
+	{
+		newNode -> back = last();
+		last() -> next = newNode;
+	}
+	else
+	{
+		newNode -> back = NULL;
+		head = newNode;
+	}
+	length++;
+
+}
+
+template <class ItemType>
+int DList<ItemType>::lengthIs() const	
+{
+	// Post : Function returns current length of list
+	return length;  
+}
+
+template <class ItemType>
+NodeType<ItemType>* DList<ItemType>::location(ItemType item) const	
+{
+	//  Pre : item to be located is passed in via parameter 
+        // Post : function returns address of item being searched for --
+        //        if not found, NULL is returned
+        NodeType<ItemType>* newNode = new NodeType<ItemType>;
+	newNode = head;  
+	if(inList(item))
+	{	
+		while(newNode != NULL)
+		{
+			if(item == (newNode -> info))
+				return newNode;
+			else
+				newNode = newNode -> next;
+		}
+	}
+	//else
+		return NULL;	
+}
+
+template <class ItemType>
+NodeType<ItemType>* DList<ItemType>::last() const	
+{
+	// Post : Function returns location of current last item in list
+	NodeType<ItemType>* lastNode = new NodeType<ItemType>;
+	if(length == 0)
+	{
+		cout << "Your list is empty." << endl;
+		return NULL;
+	}
+	else if(length == 1)
+		return head;
+	else	
+	{
+		lastNode = head;
+		for(int i = 0; i < length-1; i++)
+		{
+			lastNode = lastNode -> next;
+		}
+		return lastNode;
+	}			
+}
+
+template <class ItemType>
+void DList<ItemType>::deleteLocation (NodeType<ItemType>* delPtr)	
+{
+
+	//  Pre : Item to be deleted exits in list and its location
+        //        is passed in via parameter
+                   
+	// Post : Location passed in is removed from list;  Length
+        //        is decremented, and location is deallocated 
+
+        // Special Cases Handled for Deleting Only One Item in List,
+        // The Head Item of List, and the Tail Item of List
+	if(length == 0)
+	{
+		cout << "Your list is empty." << endl;
+	}
+	else if(length == 1)
+	{
+		delete delPtr;
+		delPtr = NULL;
+		head = NULL;
+		length--;
+	}
+	else if(delPtr == head)
+	{
+		head = head -> next;
+		delete delPtr;
+		delPtr = NULL;
+		length--;
+	}
+	else if(delPtr == last())
+	{
+		(delPtr -> back) -> next = NULL;
+		delete delPtr;
+		delPtr = NULL;
+		length--;
+	}
+	else
+	{
+		(delPtr -> next) -> back = delPtr -> back;
+		(delPtr -> back) -> next = delPtr -> next;
+		delete delPtr;
+		delPtr = NULL;
+		length--;
+	}
+}
+]0;bryant_gw@cobra:~/csc245/Prog1[bryant_gw@cobra Prog1]$ c++ MoveFront.cpp
+]0;bryant_gw@cobra:~/csc245/Prog1[bryant_gw@cobra Prog1]$ a.p[Kout
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: h
+	Item to be inserted onto head of list: 5
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: t
+	Item to be inserted onto head of list: 8
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: h
+	Item to be inserted onto head of list: 3
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: p
+3
+5
+8
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: a
+	Item to be accessed: 5
+	Item was found and moved to front of list
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: p
+5
+3
+8
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: d
+	Item to be deleted: 3
+	Item successfully deleted from list.
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: p
+5
+8
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: d
+	Item to be deleted: 5
+	Item successfully deleted from list.
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: p
+8
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: d
+	Item to be deleted: 8
+	Item successfully deleted from list.
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: p
+	List is empty
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: h
+	Item to be inserted onto head of list: 6
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: l
+	Length of list: 1
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: d
+	Item to be deleted: 9
+	Item could not be found in list
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: p
+6
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: d
+	Item to be deleted: 6
+	Item successfully deleted from list.
+-------------------------------
+		menu		
+-------------------------------
+H: Insert item at head of list
+T: Insert item at tail of list
+A: Access item from list
+D: Delete item from list
+P: Print list
+L: Print length of list
+Q: Quit program
+-------------------------------
+Enter choice: q
+	Exiting Program...
+]0;bryant_gw@cobra:~/csc245/Prog1[bryant_gw@cobra Prog1]$ exit
+exit
+
+Script done on Thu 17 Sep 2020 08:46:00 PM EDT

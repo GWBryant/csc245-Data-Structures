@@ -1,0 +1,63 @@
+Dijkstra's Algorithm
+Gabe Bryant
+
+Problem: Build a directed graph of vertices from data stored in an input file and use dijkstra's Algorithm to print out a summary table of the shortest path to all vertices in the graph from a starting vertex input by the user.
+
+We are to assume that each city/vertex name is a string of max length 30 characters and that te input is delimited by semicolons. The input will be of the format origin;destination;trip-length. We are to alert the user if the Command line input is incorrect, and if they enter an invalid starting vertex we are to alert them and allow them to try again. After the starting vertex is entered we will print out a summary table of the shortest path to each vertex from the start vertex. We are to generate this table using dijsktra's algorithm.
+
+Client Algorithm:
+-First we get the number of vertices from the input file and add each vertex to the graph as well as a vector of vert structs that hold all of the info needed for dijkstra's algorithm.    
+function: numVertices()
+-Then we sort the vector of vert structs in ascending order by vertex name
+function: shellsort()
+-Then we build the graph by adding edges based on the  input file
+function: createGraph()
+-Then we clear the screen to prepare to print the menu
+function: system("clear")
+-Next we print the opening menu which displays the vertices and prompts the user to enter a vertex in as a starting value, if the user enters an invalid vertex the system alerts them and prompts them to enter another. It continues to do this until a valid vertex.
+function: printMenu(), getStart()
+-Once a valid vertex has been printed we perform Dijkstra's algorithm to generate a summary table that details the shortest path to each vertex from the given starting position
+function: findPaths()
+
+Dijkstra's Algorithm:
+-get the start using getStart() so we know where to start
+-using that starting value use onPath() to see how many values are not reachable from the chosen starting vertex
+-while there are less unvisited/unreachable vertiecs than there are vertices continue to loop
+-populate a Queue with adjacent vertices to current vertex visited
+-if there are adjacent vertices 
+    -see if getting to those adjecent vertices is quickest from the current vertex visited
+    -check which vertex in the list has the lowest distance and visit it next
+-if there are no adjacent vertices update the start to the next vertex over in the vector
+
+Graph class:
+Graph(): creates a graph (constructor)
+IsFull(): checks if a graph is full by checking max vertices allowed
+IsEmpty(): checks if a graph is empty by seeing if current vertices is 0
+ClearMarks(): sets all marks in graph to false
+MarkVertex(): marks a vertex, setting its marked status to true
+IsMarked(): checks if a given vertex is marked or not
+AddVertex(): Adds a new vertex to the graph does this by adding the vertex to an array of vertices and giving it null edges in the adjacency matrix
+IndexIs(): returns the index of a given element in the graph
+AddEdge(): given two vertices and a weight this function adds a connection of that weight between the two vertices from one to the other on the adjacency matrix.
+WeightIs(): given two vertices the function returns the weight of the connection from the first to the second vertex.
+GetToVertices(): given a vertex and a Queue this function fills the Queue with all of the vertices the given vertex is connected to.
+
+Data structures to build Graph:
+The data structure used to build a graph in this instance was an adjacency matrix. That is a multi-dimensional arrayof weights. If there us no weight then there is no connection between two vertices and in this data structure that is represented as 0.
+There is also an array of vertices that correpsonds to the index of each vertex for each dimension of the adjecency matrix.
+
+Example Input:
+V1;V2;7
+V2;V3;8
+
+Example Output:
+                                ^^^^^^^^^^^^^ Dijkstra's Algorithm ^^^^^^^^^^^^^
+                                A weighted Graph has been built for these 3 cities: 
+                            V1                            V2                            V3
+
+                Enter starting vertex: V1
+                ----------------------------------------------------------------------------
+                                Vertex       Distance       Previous
+                                    V1              0            N/A
+                                    V2              7             V1
+                                    V3             15             V2
